@@ -85,6 +85,8 @@ function loop() {
   user.style.left = px + "px";
   user.style.top = py + "px";
 
+  user.style.zIndex = gy;
+
   updateSprite();
 
   requestAnimationFrame(loop);
