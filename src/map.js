@@ -1,7 +1,7 @@
 const map = document.querySelector("#map");
 
 export const tileSize = 38;
-export const mapWidth = 42;
+export const mapWidth = 40;
 export const mapHeight = 20;
 
 for (let y = 0; y < mapHeight; y++) {
