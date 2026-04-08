@@ -1,40 +1,94 @@
-import { tileSize, mapHeight, mapWidth } from "./map.js";
+import { tileSize, mapHeight, mapWidth, treeBlocks } from "./map.js";
 
 const user = document.querySelector(".user");
 
 let gx = 5;
 let gy = 5;
+
 let px = gx * tileSize;
 let py = gy * tileSize;
+
 let tx = px;
 let ty = py;
 
-const speed = 4;
-let lastTime = 0;
-const delay = 80;
+const speed = 22;
 
-const move = (e) => {
-  const now = Date.now();
-  if (now - lastTime < delay) return;
-  lastTime = now;
+const keys = {};
+let lastMoveTime = 0;
+const moveDelay = 130;
 
-  const key = e.key.toLowerCase();
-  if ((key === "w" || key === "ㅈ") && gy > 0) gy -= 1;
-  if ((key === "s" || key === "ㄴ") && gy < mapHeight - 1) gy += 1;
-  if ((key === "a" || key === "ㅁ") && gx > 0) gx -= 1;
-  if ((key === "d" || key === "ㅇ") && gx < mapWidth - 1) gx += 1;
+let direction = "front";
 
-  tx = gx * tileSize;
-  ty = gy * tileSize;
-};
+user.style.left = px + "px";
+user.style.top = py + "px";
 
-document.addEventListener("keydown", move);
+function updateSprite() {
+  user.src = `../assets/images/player_idle_${direction}.png`;
+}
+
+function isBlocked(nx, ny) {
+  return treeBlocks.some((pos) => pos.x === nx && pos.y === ny);
+}
+
+document.addEventListener("keydown", (e) => {
+  keys[e.key.toLowerCase()] = true;
+});
+
+document.addEventListener("keyup", (e) => {
+  keys[e.key.toLowerCase()] = false;
+});
 
 function loop() {
+  const now = Date.now();
+
+  if (now - lastMoveTime > moveDelay) {
+    let nx = gx;
+    let ny = gy;
+
+    if (keys["w"] || keys["ㅈ"]) {
+      ny -= 1;
+      direction = "back";
+    }
+    if (keys["s"] || keys["ㄴ"]) {
+      ny += 1;
+      direction = "front";
+    }
+    if (keys["a"] || keys["ㅁ"]) {
+      nx -= 1;
+      direction = "left";
+    }
+    if (keys["d"] || keys["ㅇ"]) {
+      nx += 1;
+      direction = "right";
+    }
+
+    if (
+      nx >= 0 &&
+      nx < mapWidth &&
+      ny >= 0 &&
+      ny < mapHeight &&
+      !isBlocked(nx, ny)
+    ) {
+      gx = nx;
+      gy = ny;
+    }
+
+    tx = gx * tileSize;
+    ty = gy * tileSize;
+
+    lastMoveTime = now;
+  }
+
   px += (tx - px) / speed;
   py += (ty - py) / speed;
+
   user.style.left = px + "px";
   user.style.top = py + "px";
+
+  user.style.zIndex = gy;
+
+  updateSprite();
+
   requestAnimationFrame(loop);
 }
 

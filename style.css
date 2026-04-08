@@ -4,26 +4,37 @@ body {
   background-color: #222;
 }
 
-.user {
-  width: 38px;
-  height: 38px;
-  position: absolute;
-  background-color: blue;
-  image-rendering: pixelated;
-  z-index: 200;
-}
-
 #map {
   position: relative;
-  width: 640px;
-  height: 640px;
+  width: 1520px;
+  height: 874px;
 }
 
 .tile {
   position: absolute;
   width: 38px;
-  height: 38px;
+  height: 50px;
   background-image: url("./assets/images/grass-plate.png");
   background-size: cover;
   image-rendering: pixelated;
+}
+
+.user {
+  width: 38px;
+  height: auto;
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  z-index: 200;
+}
+
+.tree {
+  width: 74px;
+  height: auto;
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  z-index: 200;
 }
