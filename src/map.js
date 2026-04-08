@@ -24,7 +24,7 @@ trees.forEach(({ x, y }) => {
   tree.src = "./assets/images/tree.png";
   tree.classList.add("tree");
 
-  tree.style.left = x * tileSize + (tileSize - 80) / 2 + "px";
+  tree.style.left = x * tileSize + (tileSize - 74) / 2 + "px";
   tree.style.top = y * tileSize + (tileSize - 80) / 2 + "px";
 
   map.appendChild(tree);
