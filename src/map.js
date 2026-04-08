@@ -1,4 +1,5 @@
 const map = document.querySelector("#map");
+
 export const tileSize = 38;
 export const mapWidth = 42;
 export const mapHeight = 20;
@@ -12,6 +13,7 @@ for (let y = 0; y < mapHeight; y++) {
     map.appendChild(tile);
   }
 }
+
 const trees = [
   { x: 14, y: 0 },
   { x: 14, y: 4 },
@@ -38,7 +40,6 @@ const trees = [
   { x: 25, y: 0 },
   { x: 25, y: 4 },
   { x: 25, y: 5 },
-  { x: 25, y: 5 },
   { x: 25, y: 6 },
   { x: 25, y: 7 },
   { x: 25, y: 8 },
@@ -58,6 +59,13 @@ const trees = [
   { x: 38, y: 8 },
   { x: 39, y: 8 },
 ];
+
+export const treeBlocks = [];
+
+trees.forEach(({ x, y }) => {
+  treeBlocks.push({ x: x, y: y });
+  treeBlocks.push({ x: x, y: y - 1 });
+});
 
 trees.forEach(({ x, y }) => {
   const tree = document.createElement("img");

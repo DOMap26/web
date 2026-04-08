@@ -1,4 +1,4 @@
-import { tileSize, mapHeight, mapWidth } from "./map.js";
+import { tileSize, mapHeight, mapWidth, treeBlocks } from "./map.js";
 
 const user = document.querySelector(".user");
 
@@ -26,6 +26,10 @@ function updateSprite() {
   user.src = `../assets/images/player_idle_${direction}.png`;
 }
 
+function isBlocked(nx, ny) {
+  return treeBlocks.some((pos) => pos.x === nx && pos.y === ny);
+}
+
 document.addEventListener("keydown", (e) => {
   keys[e.key.toLowerCase()] = true;
 });
@@ -38,21 +42,35 @@ function loop() {
   const now = Date.now();
 
   if (now - lastMoveTime > moveDelay) {
-    if ((keys["w"] || keys["ㅈ"]) && gy > 0) {
-      gy -= 1;
+    let nx = gx;
+    let ny = gy;
+
+    if (keys["w"] || keys["ㅈ"]) {
+      ny -= 1;
       direction = "back";
     }
-    if ((keys["s"] || keys["ㄴ"]) && gy < mapHeight - 1) {
-      gy += 1;
+    if (keys["s"] || keys["ㄴ"]) {
+      ny += 1;
       direction = "front";
     }
-    if ((keys["a"] || keys["ㅁ"]) && gx > 0) {
-      gx -= 1;
+    if (keys["a"] || keys["ㅁ"]) {
+      nx -= 1;
       direction = "left";
     }
-    if ((keys["d"] || keys["ㅇ"]) && gx < mapWidth - 1) {
-      gx += 1;
+    if (keys["d"] || keys["ㅇ"]) {
+      nx += 1;
       direction = "right";
+    }
+
+    if (
+      nx >= 0 &&
+      nx < mapWidth &&
+      ny >= 0 &&
+      ny < mapHeight &&
+      !isBlocked(nx, ny)
+    ) {
+      gx = nx;
+      gy = ny;
     }
 
     tx = gx * tileSize;
