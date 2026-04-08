@@ -11,7 +11,7 @@ let ty = py;
 
 const speed = 4;
 let lastTime = 0;
-const delay = 80;
+const delay = 64;
 
 const move = (e) => {
   const now = Date.now();
