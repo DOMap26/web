@@ -11,14 +11,20 @@ let py = gy * tileSize;
 let tx = px;
 let ty = py;
 
-const speed = 6;
+const speed = 16;
 
 const keys = {};
 let lastMoveTime = 0;
-const moveDelay = 120;
+const moveDelay = 130;
+
+let direction = "front";
 
 user.style.left = px + "px";
 user.style.top = py + "px";
+
+function updateSprite() {
+  user.src = `../assets/images/player_idle_${direction}.png`;
+}
 
 document.addEventListener("keydown", (e) => {
   keys[e.key.toLowerCase()] = true;
@@ -32,10 +38,22 @@ function loop() {
   const now = Date.now();
 
   if (now - lastMoveTime > moveDelay) {
-    if ((keys["w"] || keys["ㅈ"]) && gy > 0) gy -= 1;
-    if ((keys["s"] || keys["ㄴ"]) && gy < mapHeight - 1) gy += 1;
-    if ((keys["a"] || keys["ㅁ"]) && gx > 0) gx -= 1;
-    if ((keys["d"] || keys["ㅇ"]) && gx < mapWidth - 1) gx += 1;
+    if ((keys["w"] || keys["ㅈ"]) && gy > 0) {
+      gy -= 1;
+      direction = "back";
+    }
+    if ((keys["s"] || keys["ㄴ"]) && gy < mapHeight - 1) {
+      gy += 1;
+      direction = "front";
+    }
+    if ((keys["a"] || keys["ㅁ"]) && gx > 0) {
+      gx -= 1;
+      direction = "left";
+    }
+    if ((keys["d"] || keys["ㅇ"]) && gx < mapWidth - 1) {
+      gx += 1;
+      direction = "right";
+    }
 
     tx = gx * tileSize;
     ty = gy * tileSize;
@@ -48,6 +66,8 @@ function loop() {
 
   user.style.left = px + "px";
   user.style.top = py + "px";
+
+  updateSprite();
 
   requestAnimationFrame(loop);
 }

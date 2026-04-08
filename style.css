@@ -22,11 +22,8 @@ body {
 .user {
   width: 38px;
   height: auto;
-  transform-origin: bottom center;
-  aspect-ratio: auto;
   position: absolute;
-  background-image: url("./assets/images/player-m.png");
-  background-size: cover;
+  background-size: contain;
   background-repeat: no-repeat;
   image-rendering: pixelated;
   z-index: 200;
