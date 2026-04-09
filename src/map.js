@@ -2,26 +2,55 @@ const map = document.querySelector("#map");
 
 const TILE_WIDTH = 38;
 const TILE_HEIGHT = 50;
-const TREE_WIDTH = 74;
+const TREE_WIDTH = 71;
 const TREE_HEIGHT = 80;
+const PLAYER_WIDTH = 16;
+const PLAYER_HEIGHT = 32;
+const CAMERA_COLUMNS = 40;
+const CAMERA_ROWS = 20;
+export const tileHeightRatio = TILE_HEIGHT / TILE_WIDTH;
+export const playerHeightRatio = PLAYER_HEIGHT / PLAYER_WIDTH;
 
-export const mapWidth = 40;
-export const mapHeight = 20;
-export let tileSize = window.innerWidth / mapWidth;
+export const mapWidth = 80;
+export const mapHeight = 40;
+
+function getResponsiveTileSize() {
+  const widthBasedTileSize = window.innerWidth / CAMERA_COLUMNS;
+  const heightBasedTileSize =
+    window.innerHeight / (CAMERA_ROWS - 1 + playerHeightRatio);
+
+  return Math.min(widthBasedTileSize, heightBasedTileSize);
+}
+
+export let tileSize = getResponsiveTileSize();
+export const maxPlayerGridY = Math.floor(
+  mapHeight - 1 + tileHeightRatio - playerHeightRatio,
+);
 
 const tiles = [];
 const treeElements = [];
 
 function applyTileMetrics() {
-  const tileHeight = tileSize * (TILE_HEIGHT / TILE_WIDTH);
+  const tileHeight = tileSize * tileHeightRatio;
   const treeWidth = tileSize * (TREE_WIDTH / TILE_WIDTH);
   const treeHeight = tileSize * (TREE_HEIGHT / TILE_WIDTH);
+  const playerHeight = tileSize * playerHeightRatio;
 
   document.documentElement.style.setProperty("--tile-width", `${tileSize}px`);
-  document.documentElement.style.setProperty("--tile-height", `${tileHeight}px`);
+  document.documentElement.style.setProperty(
+    "--tile-height",
+    `${tileHeight}px`,
+  );
   document.documentElement.style.setProperty("--user-width", `${tileSize}px`);
+  document.documentElement.style.setProperty(
+    "--user-height",
+    `${playerHeight}px`,
+  );
   document.documentElement.style.setProperty("--tree-width", `${treeWidth}px`);
-  document.documentElement.style.setProperty("--tree-height", `${treeHeight}px`);
+  document.documentElement.style.setProperty(
+    "--tree-height",
+    `${treeHeight}px`,
+  );
 
   map.style.width = `${mapWidth * tileSize}px`;
   map.style.height = `${(mapHeight - 1) * tileSize + tileHeight}px`;
@@ -41,7 +70,7 @@ function positionTree(tree, x, y) {
 }
 
 export function updateMapLayout() {
-  tileSize = window.innerWidth / mapWidth;
+  tileSize = getResponsiveTileSize();
   applyTileMetrics();
 
   tiles.forEach(({ element, x, y }) => {
