@@ -11,11 +11,11 @@ let py = gy * tileSize;
 let tx = px;
 let ty = py;
 
-const speed = 20;
+const speed = 12;
 
 const keys = {};
 let lastMoveTime = 0;
-const moveDelay = 140;
+const moveDelay = 120;
 
 let direction = "front";
 

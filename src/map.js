@@ -76,5 +76,6 @@ trees.forEach(({ x, y }) => {
   tree.style.top = y * tileSize + (tileSize - 80) / 2 + "px";
 
   map.appendChild(tree);
+
   tree.style.zIndex = y * mapWidth + x;
 });

@@ -6,8 +6,6 @@ body {
 
 #map {
   position: relative;
-  width: 1520px;
-  height: 874px;
 }
 
 .tile {
@@ -26,7 +24,7 @@ body {
   background-size: contain;
   background-repeat: no-repeat;
   image-rendering: pixelated;
-  z-index: 200;
+  z-index: 100;
 }
 
 .tree {
