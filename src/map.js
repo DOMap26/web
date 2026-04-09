@@ -1,16 +1,65 @@
 const map = document.querySelector("#map");
 
-export const tileSize = 38;
+const TILE_WIDTH = 38;
+const TILE_HEIGHT = 50;
+const TREE_WIDTH = 74;
+const TREE_HEIGHT = 80;
+
 export const mapWidth = 40;
 export const mapHeight = 20;
+export let tileSize = window.innerWidth / mapWidth;
+
+const tiles = [];
+const treeElements = [];
+
+function applyTileMetrics() {
+  const tileHeight = tileSize * (TILE_HEIGHT / TILE_WIDTH);
+  const treeWidth = tileSize * (TREE_WIDTH / TILE_WIDTH);
+  const treeHeight = tileSize * (TREE_HEIGHT / TILE_WIDTH);
+
+  document.documentElement.style.setProperty("--tile-width", `${tileSize}px`);
+  document.documentElement.style.setProperty("--tile-height", `${tileHeight}px`);
+  document.documentElement.style.setProperty("--user-width", `${tileSize}px`);
+  document.documentElement.style.setProperty("--tree-width", `${treeWidth}px`);
+  document.documentElement.style.setProperty("--tree-height", `${treeHeight}px`);
+
+  map.style.width = `${mapWidth * tileSize}px`;
+  map.style.height = `${(mapHeight - 1) * tileSize + tileHeight}px`;
+}
+
+function positionTile(tile, x, y) {
+  tile.style.left = x * tileSize + "px";
+  tile.style.top = y * tileSize + "px";
+}
+
+function positionTree(tree, x, y) {
+  const treeWidth = tileSize * (TREE_WIDTH / TILE_WIDTH);
+  const treeHeight = tileSize * (TREE_HEIGHT / TILE_WIDTH);
+
+  tree.style.left = x * tileSize + (tileSize - treeWidth) / 2 + "px";
+  tree.style.top = y * tileSize + (tileSize - treeHeight) / 2 + "px";
+}
+
+export function updateMapLayout() {
+  tileSize = window.innerWidth / mapWidth;
+  applyTileMetrics();
+
+  tiles.forEach(({ element, x, y }) => {
+    positionTile(element, x, y);
+  });
+
+  treeElements.forEach(({ element, x, y }) => {
+    positionTree(element, x, y);
+  });
+}
 
 for (let y = 0; y < mapHeight; y++) {
   for (let x = 0; x < mapWidth; x++) {
     const tile = document.createElement("div");
     tile.classList.add("tile");
-    tile.style.left = x * tileSize + "px";
-    tile.style.top = y * tileSize + "px";
+    positionTile(tile, x, y);
     map.appendChild(tile);
+    tiles.push({ element: tile, x, y });
   }
 }
 
@@ -72,9 +121,13 @@ trees.forEach(({ x, y }) => {
   tree.src = "./assets/images/tree.png";
   tree.classList.add("tree");
 
-  tree.style.left = x * tileSize + (tileSize - 74) / 2 + "px";
-  tree.style.top = y * tileSize + (tileSize - 80) / 2 + "px";
+  positionTree(tree, x, y);
 
   map.appendChild(tree);
-  tree.style.zIndex = y;
+  treeElements.push({ element: tree, x, y });
+
+  tree.style.zIndex = y * mapWidth + x;
 });
+
+updateMapLayout();
+window.addEventListener("resize", updateMapLayout);

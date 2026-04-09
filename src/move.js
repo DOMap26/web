@@ -11,11 +11,11 @@ let py = gy * tileSize;
 let tx = px;
 let ty = py;
 
-const speed = 22;
+const speed = 12;
 
 const keys = {};
 let lastMoveTime = 0;
-const moveDelay = 130;
+const moveDelay = 120;
 
 let direction = "front";
 
@@ -73,11 +73,11 @@ function loop() {
       gy = ny;
     }
 
-    tx = gx * tileSize;
-    ty = gy * tileSize;
-
     lastMoveTime = now;
   }
+
+  tx = gx * tileSize;
+  ty = gy * tileSize;
 
   px += (tx - px) / speed;
   py += (ty - py) / speed;
@@ -85,7 +85,7 @@ function loop() {
   user.style.left = px + "px";
   user.style.top = py + "px";
 
-  user.style.zIndex = gy;
+  user.style.zIndex = gy * mapWidth + gx;
 
   updateSprite();
 
