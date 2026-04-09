@@ -2,8 +2,8 @@ export const structureTypes = {
   tree: {
     assetKey: "tree",
     src: "./assets/images/tree.png",
-    drawWidth: 71,
-    drawHeight: 80,
+    drawWidth: 78,
+    drawHeight: 90,
     blocks: [
       { x: 0, y: 0 },
       { x: 0, y: -1 },
@@ -13,7 +13,14 @@ export const structureTypes = {
     assetKey: "stone",
     src: "./assets/images/stone.png",
     drawWidth: 70,
-    drawHeight: 60,
+    drawHeight: 58,
+    blocks: [{ x: 0, y: -1 }],
+  },
+  box: {
+    assetKey: "box",
+    src: "./assets/images/box.png",
+    drawWidth: 38,
+    drawHeight: 46,
     blocks: [{ x: 0, y: -1 }],
   },
 };
@@ -23,7 +30,6 @@ function points(type, coords) {
 }
 
 export const structurePlacements = [
-  // North-side scattered groves
   ...points("tree", [
     [2, 6],
     [3, 4],
@@ -45,7 +51,6 @@ export const structurePlacements = [
     [39, 3],
   ]),
 
-  // Mid-left forest patch
   ...points("tree", [
     [5, 17],
     [6, 16],
@@ -62,7 +67,6 @@ export const structurePlacements = [
     [12, 19],
   ]),
 
-  // Mid-right forest patch
   ...points("tree", [
     [29, 15],
     [30, 16],
@@ -79,8 +83,7 @@ export const structurePlacements = [
     [37, 19],
   ]),
 
-  // East-side dense grove
-  ...points("tree", [
+  ...points("stone", [
     [50, 8],
     [51, 7],
     [51, 10],
@@ -99,47 +102,7 @@ export const structurePlacements = [
     [63, 8],
     [65, 10],
   ]),
-
-  // South-east scattered woods
-  ...points("tree", [
-    [46, 24],
-    [47, 26],
-    [49, 25],
-    [50, 27],
-    [52, 24],
-    [53, 26],
-    [55, 28],
-    [57, 27],
-    [58, 25],
-    [60, 26],
-    [61, 28],
-    [63, 25],
-    [65, 27],
-  ]),
-
-  // Stone accents near route edges
-  ...points("stone", [
-    [2, 5],
-    [4, 6],
-    [7, 5],
-    [14, 12],
-    [17, 13],
-    [24, 12],
-    [26, 13],
-    [9, 15],
-    [14, 21],
-    [18, 20],
-    [27, 16],
-    [39, 18],
-    [45, 9],
-    [47, 11],
-    [54, 17],
-    [57, 18],
-    [60, 23],
-    [64, 24],
-    [67, 28],
-    [70, 29],
-  ]),
+  ...points("box", [[6, 10]]),
 ];
 
 export const structures = structurePlacements.map((placement, index) => {
