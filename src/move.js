@@ -1,15 +1,11 @@
 import {
-  tileSize,
-  mapHeight,
+  assetsReady,
   mapWidth,
   maxPlayerGridY,
-  playerHeightRatio,
-  tileHeightRatio,
-  treeBlocks,
+  renderScene,
+  tileSize,
+  treeBlockSet,
 } from "./map.js";
-
-const user = document.querySelector(".user");
-const world = document.querySelector("#world");
 
 let gx = 20;
 let gy = 10;
@@ -20,20 +16,13 @@ let moveFromX = gx;
 let moveFromY = gy;
 let moveStartTime = 0;
 let isMoving = false;
-const moveDuration = 120;
 
+const moveDuration = 110;
 const keys = {};
 let direction = "front";
 
-user.style.left = px + "px";
-user.style.top = py + "px";
-
-function updateSprite() {
-  user.src = `../assets/images/player_idle_${direction}.png`;
-}
-
 function isBlocked(nx, ny) {
-  return treeBlocks.some((pos) => pos.x === nx && pos.y === ny);
+  return treeBlockSet.has(`${nx},${ny}`);
 }
 
 function getNextStep() {
@@ -59,40 +48,12 @@ function getNextStep() {
   return { dx, dy };
 }
 
-function updateCamera() {
-  const mapPixelWidth = mapWidth * tileSize;
-  const mapPixelHeight =
-    (mapHeight - 1) * tileSize + tileSize * tileHeightRatio;
-  const playerPixelWidth = tileSize;
-  const playerPixelHeight = tileSize * playerHeightRatio;
-
-  const playerCenterX = px + playerPixelWidth / 2;
-  const playerCenterY = py + playerPixelHeight / 2;
-
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-
-  const minCameraX = Math.min(0, viewportWidth - mapPixelWidth);
-  const minCameraY = Math.min(0, viewportHeight - mapPixelHeight);
-
-  const cameraX = Math.min(
-    0,
-    Math.max(minCameraX, viewportWidth / 2 - playerCenterX),
-  );
-  const cameraY = Math.min(
-    0,
-    Math.max(minCameraY, viewportHeight / 2 - playerCenterY),
-  );
-
-  world.style.transform = `translate(${cameraX}px, ${cameraY}px)`;
-}
-
-document.addEventListener("keydown", (e) => {
-  keys[e.key.toLowerCase()] = true;
+document.addEventListener("keydown", (event) => {
+  keys[event.key.toLowerCase()] = true;
 });
 
-document.addEventListener("keyup", (e) => {
-  keys[e.key.toLowerCase()] = false;
+document.addEventListener("keyup", (event) => {
+  keys[event.key.toLowerCase()] = false;
 });
 
 window.addEventListener("blur", () => {
@@ -154,16 +115,12 @@ function loop(now) {
   }
 
   updatePosition(now);
-
-  user.style.left = px + "px";
-  user.style.top = py + "px";
-
-  user.style.zIndex = gy * mapWidth + gx;
-
-  updateSprite();
-  updateCamera();
+  renderScene({ px, py, direction });
 
   requestAnimationFrame(loop);
 }
 
-requestAnimationFrame(loop);
+assetsReady.then(() => {
+  renderScene({ px, py, direction });
+  requestAnimationFrame(loop);
+});

@@ -1,4 +1,5 @@
-const map = document.querySelector("#map");
+const canvas = document.querySelector("#game");
+const ctx = canvas.getContext("2d");
 
 const TILE_WIDTH = 38;
 const TILE_HEIGHT = 50;
@@ -8,89 +9,13 @@ const PLAYER_WIDTH = 16;
 const PLAYER_HEIGHT = 32;
 const CAMERA_COLUMNS = 40;
 const CAMERA_ROWS = 20;
+
 export const tileHeightRatio = TILE_HEIGHT / TILE_WIDTH;
 export const playerHeightRatio = PLAYER_HEIGHT / PLAYER_WIDTH;
-
 export const mapWidth = 80;
 export const mapHeight = 40;
 
-function getResponsiveTileSize() {
-  const widthBasedTileSize = window.innerWidth / CAMERA_COLUMNS;
-  const heightBasedTileSize =
-    window.innerHeight / (CAMERA_ROWS - 1 + playerHeightRatio);
-
-  return Math.min(widthBasedTileSize, heightBasedTileSize);
-}
-
-export let tileSize = getResponsiveTileSize();
-export const maxPlayerGridY = Math.floor(
-  mapHeight - 1 + tileHeightRatio - playerHeightRatio,
-);
-
-const tiles = [];
-const treeElements = [];
-
-function applyTileMetrics() {
-  const tileHeight = tileSize * tileHeightRatio;
-  const treeWidth = tileSize * (TREE_WIDTH / TILE_WIDTH);
-  const treeHeight = tileSize * (TREE_HEIGHT / TILE_WIDTH);
-  const playerHeight = tileSize * playerHeightRatio;
-
-  document.documentElement.style.setProperty("--tile-width", `${tileSize}px`);
-  document.documentElement.style.setProperty(
-    "--tile-height",
-    `${tileHeight}px`,
-  );
-  document.documentElement.style.setProperty("--user-width", `${tileSize}px`);
-  document.documentElement.style.setProperty(
-    "--user-height",
-    `${playerHeight}px`,
-  );
-  document.documentElement.style.setProperty("--tree-width", `${treeWidth}px`);
-  document.documentElement.style.setProperty(
-    "--tree-height",
-    `${treeHeight}px`,
-  );
-
-  map.style.width = `${mapWidth * tileSize}px`;
-  map.style.height = `${(mapHeight - 1) * tileSize + tileHeight}px`;
-}
-
-function positionTile(tile, x, y) {
-  tile.style.left = x * tileSize + "px";
-  tile.style.top = y * tileSize + "px";
-}
-
-function positionTree(tree, x, y) {
-  const treeWidth = tileSize * (TREE_WIDTH / TILE_WIDTH);
-  const treeHeight = tileSize * (TREE_HEIGHT / TILE_WIDTH);
-
-  tree.style.left = x * tileSize + (tileSize - treeWidth) / 2 + "px";
-  tree.style.top = y * tileSize + (tileSize - treeHeight) / 2 + "px";
-}
-
-export function updateMapLayout() {
-  tileSize = getResponsiveTileSize();
-  applyTileMetrics();
-
-  tiles.forEach(({ element, x, y }) => {
-    positionTile(element, x, y);
-  });
-
-  treeElements.forEach(({ element, x, y }) => {
-    positionTree(element, x, y);
-  });
-}
-
-for (let y = 0; y < mapHeight; y++) {
-  for (let x = 0; x < mapWidth; x++) {
-    const tile = document.createElement("div");
-    tile.classList.add("tile");
-    positionTile(tile, x, y);
-    map.appendChild(tile);
-    tiles.push({ element: tile, x, y });
-  }
-}
+export let tileSize = 1;
 
 const trees = [
   { x: 14, y: 0 },
@@ -99,7 +24,6 @@ const trees = [
   { x: 14, y: 6 },
   { x: 14, y: 7 },
   { x: 14, y: 8 },
-
   { x: 0, y: 8 },
   { x: 1, y: 8 },
   { x: 2, y: 8 },
@@ -114,14 +38,12 @@ const trees = [
   { x: 11, y: 8 },
   { x: 12, y: 8 },
   { x: 13, y: 8 },
-
   { x: 25, y: 0 },
   { x: 25, y: 4 },
   { x: 25, y: 5 },
   { x: 25, y: 6 },
   { x: 25, y: 7 },
   { x: 25, y: 8 },
-
   { x: 26, y: 8 },
   { x: 27, y: 8 },
   { x: 28, y: 8 },
@@ -138,25 +60,180 @@ const trees = [
   { x: 39, y: 8 },
 ];
 
-export const treeBlocks = [];
+export const treeBlockSet = new Set();
 
 trees.forEach(({ x, y }) => {
-  treeBlocks.push({ x: x, y: y });
-  treeBlocks.push({ x: x, y: y - 1 });
+  treeBlockSet.add(`${x},${y}`);
+  treeBlockSet.add(`${x},${y - 1}`);
 });
 
-trees.forEach(({ x, y }) => {
-  const tree = document.createElement("img");
-  tree.src = "./assets/images/tree.png";
-  tree.classList.add("tree");
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
 
-  positionTree(tree, x, y);
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+}
 
-  map.appendChild(tree);
-  treeElements.push({ element: tree, x, y });
+export const assets = {
+  grass: null,
+  tree: null,
+  player: {},
+};
 
-  tree.style.zIndex = y * mapWidth + x;
+export const assetsReady = Promise.all([
+  loadImage("./assets/images/grass-plate.png"),
+  loadImage("./assets/images/tree.png"),
+  loadImage("./assets/images/player_idle_front.png"),
+  loadImage("./assets/images/player_idle_back.png"),
+  loadImage("./assets/images/player_idle_left.png"),
+  loadImage("./assets/images/player_idle_right.png"),
+]).then(([grass, tree, front, back, left, right]) => {
+  assets.grass = grass;
+  assets.tree = tree;
+  assets.player.front = front;
+  assets.player.back = back;
+  assets.player.left = left;
+  assets.player.right = right;
 });
 
-updateMapLayout();
-window.addEventListener("resize", updateMapLayout);
+function getResponsiveTileSize() {
+  const widthBasedTileSize = window.innerWidth / CAMERA_COLUMNS;
+  const heightBasedTileSize =
+    window.innerHeight / (CAMERA_ROWS - 1 + playerHeightRatio);
+
+  return Math.max(1, Math.floor(Math.min(widthBasedTileSize, heightBasedTileSize)));
+}
+
+export function getTileHeight() {
+  return Math.round(tileSize * tileHeightRatio);
+}
+
+export function getPlayerHeight() {
+  return Math.round(tileSize * playerHeightRatio);
+}
+
+function getTreeSize() {
+  return {
+    width: Math.round(tileSize * (TREE_WIDTH / TILE_WIDTH)),
+    height: Math.round(tileSize * (TREE_HEIGHT / TILE_WIDTH)),
+  };
+}
+
+export function getMapPixelSize() {
+  return {
+    width: Math.round(mapWidth * tileSize),
+    height: Math.round((mapHeight - 1) * tileSize + getTileHeight()),
+  };
+}
+
+export const maxPlayerGridY = Math.floor(
+  mapHeight - 1 + tileHeightRatio - playerHeightRatio,
+);
+
+export function resizeScene() {
+  tileSize = getResponsiveTileSize();
+
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = Math.round(window.innerWidth * dpr);
+  canvas.height = Math.round(window.innerHeight * dpr);
+  canvas.style.width = `${window.innerWidth}px`;
+  canvas.style.height = `${window.innerHeight}px`;
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getCamera(px, py) {
+  const mapPixelSize = getMapPixelSize();
+  const playerHeight = getPlayerHeight();
+
+  const centerX = px + tileSize / 2;
+  const centerY = py + playerHeight / 2;
+
+  return {
+    x: clamp(centerX - window.innerWidth / 2, 0, Math.max(0, mapPixelSize.width - window.innerWidth)),
+    y: clamp(centerY - window.innerHeight / 2, 0, Math.max(0, mapPixelSize.height - window.innerHeight)),
+  };
+}
+
+function drawTiles(cameraX, cameraY) {
+  const tileHeight = getTileHeight();
+  const startX = Math.max(0, Math.floor(cameraX / tileSize) - 1);
+  const endX = Math.min(mapWidth - 1, Math.ceil((cameraX + window.innerWidth) / tileSize) + 1);
+  const startY = Math.max(0, Math.floor(cameraY / tileSize) - 1);
+  const endY = Math.min(mapHeight - 1, Math.ceil((cameraY + window.innerHeight) / tileSize) + 1);
+
+  for (let y = startY; y <= endY; y += 1) {
+    for (let x = startX; x <= endX; x += 1) {
+      const drawX = Math.round(x * tileSize - cameraX);
+      const drawY = Math.round(y * tileSize - cameraY);
+
+      ctx.drawImage(assets.grass, drawX, drawY, tileSize, tileHeight);
+    }
+  }
+}
+
+function getTreeSprites() {
+  const treeSize = getTreeSize();
+
+  return trees.map(({ x, y }) => {
+    const drawX = Math.round(x * tileSize + (tileSize - treeSize.width) / 2);
+    const drawY = Math.round(y * tileSize + (tileSize - treeSize.height) / 2);
+
+    return {
+      image: assets.tree,
+      x: drawX,
+      y: drawY,
+      width: treeSize.width,
+      height: treeSize.height,
+      sortY: drawY + treeSize.height,
+      sortX: x,
+    };
+  });
+}
+
+export function renderScene({ px, py, direction }) {
+  if (!assets.grass || !assets.tree || !assets.player[direction]) {
+    return;
+  }
+
+  const playerHeight = getPlayerHeight();
+  const camera = getCamera(px, py);
+
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  drawTiles(camera.x, camera.y);
+
+  const sprites = [
+    ...getTreeSprites(),
+    {
+      image: assets.player[direction],
+      x: Math.round(px),
+      y: Math.round(py),
+      width: tileSize,
+      height: playerHeight,
+      sortY: Math.round(py) + playerHeight,
+      sortX: Math.round(px),
+    },
+  ].sort((a, b) => a.sortY - b.sortY || a.sortX - b.sortX);
+
+  sprites.forEach((sprite) => {
+    ctx.drawImage(
+      sprite.image,
+      Math.round(sprite.x - camera.x),
+      Math.round(sprite.y - camera.y),
+      sprite.width,
+      sprite.height,
+    );
+  });
+}
+
+resizeScene();
+window.addEventListener("resize", resizeScene);
