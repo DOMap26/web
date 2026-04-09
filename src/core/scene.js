@@ -122,7 +122,7 @@ function isSpriteVisible(sprite, camera) {
 }
 
 export function renderScene({ player, structures }) {
-  if (!assets.ground || !assets.player[player.direction]) {
+  if (!assets.ground || !assets.player[player.spriteKey]) {
     return;
   }
 
@@ -135,7 +135,7 @@ export function renderScene({ player, structures }) {
   const sprites = [
     ...structureSprites,
     {
-      image: assets.player[player.direction],
+      image: assets.player[player.spriteKey],
       x: Math.round(player.px),
       y: Math.round(player.py),
       width: tileSize,

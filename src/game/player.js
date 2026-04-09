@@ -2,6 +2,7 @@ import {
   MAP_WIDTH,
   MOVE_DURATION,
   PLAYER_START,
+  RUN_FRAME_DURATION,
   maxPlayerGridY,
 } from "../config/game.js";
 import { getTileSize } from "../core/scene.js";
@@ -19,6 +20,9 @@ export function createPlayer() {
     moveStartTime: 0,
     isMoving: false,
     direction: "front",
+    spriteKey: "front",
+    runAnimationElapsed: 0,
+    lastUpdateTime: 0,
   };
 }
 
@@ -49,6 +53,29 @@ function getNextStep(input, directionRef) {
 function syncPlayerToGrid(player, tileSize) {
   player.px = player.gx * tileSize;
   player.py = player.gy * tileSize;
+}
+
+function updatePlayerSprite(player, now) {
+  if (!player.isMoving) {
+    player.spriteKey = player.direction;
+    return;
+  }
+
+  if (
+    player.direction === "left" ||
+    player.direction === "right" ||
+    player.direction === "front" ||
+    player.direction === "back"
+  ) {
+    const frameIndex =
+      Math.floor(player.runAnimationElapsed / RUN_FRAME_DURATION) % 2;
+    const frameNumber = frameIndex + 1;
+
+    player.spriteKey = `${player.direction}Run${frameNumber}`;
+    return;
+  }
+
+  player.spriteKey = player.direction;
 }
 
 function startMove(player, now, input, blockedTileSet) {
@@ -83,6 +110,9 @@ function startMove(player, now, input, blockedTileSet) {
 
 export function updatePlayer(player, now, input, blockedTileSet) {
   const tileSize = getTileSize();
+  const deltaTime = player.lastUpdateTime === 0 ? 0 : now - player.lastUpdateTime;
+
+  player.lastUpdateTime = now;
 
   if (!player.isMoving) {
     startMove(player, now, input, blockedTileSet);
@@ -90,8 +120,12 @@ export function updatePlayer(player, now, input, blockedTileSet) {
 
   if (!player.isMoving) {
     syncPlayerToGrid(player, tileSize);
+    player.runAnimationElapsed = 0;
+    updatePlayerSprite(player, now);
     return;
   }
+
+  player.runAnimationElapsed += deltaTime;
 
   const progress = Math.min((now - player.moveStartTime) / MOVE_DURATION, 1);
   const worldX = player.moveFromX + (player.gx - player.moveFromX) * progress;
@@ -103,4 +137,6 @@ export function updatePlayer(player, now, input, blockedTileSet) {
   if (progress >= 1) {
     player.isMoving = false;
   }
+
+  updatePlayerSprite(player, now);
 }
