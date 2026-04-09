@@ -1,6 +1,15 @@
-import { tileSize, mapHeight, mapWidth, treeBlocks } from "./map.js";
+import {
+  tileSize,
+  mapHeight,
+  mapWidth,
+  maxPlayerGridY,
+  playerHeightRatio,
+  tileHeightRatio,
+  treeBlocks,
+} from "./map.js";
 
 const user = document.querySelector(".user");
+const world = document.querySelector("#world");
 
 let gx = 5;
 let gy = 5;
@@ -28,6 +37,33 @@ function updateSprite() {
 
 function isBlocked(nx, ny) {
   return treeBlocks.some((pos) => pos.x === nx && pos.y === ny);
+}
+
+function updateCamera() {
+  const mapPixelWidth = mapWidth * tileSize;
+  const mapPixelHeight = (mapHeight - 1) * tileSize + tileSize * tileHeightRatio;
+  const playerPixelWidth = tileSize;
+  const playerPixelHeight = tileSize * playerHeightRatio;
+
+  const playerCenterX = px + playerPixelWidth / 2;
+  const playerCenterY = py + playerPixelHeight / 2;
+
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  const minCameraX = Math.min(0, viewportWidth - mapPixelWidth);
+  const minCameraY = Math.min(0, viewportHeight - mapPixelHeight);
+
+  const cameraX = Math.min(
+    0,
+    Math.max(minCameraX, viewportWidth / 2 - playerCenterX)
+  );
+  const cameraY = Math.min(
+    0,
+    Math.max(minCameraY, viewportHeight / 2 - playerCenterY)
+  );
+
+  world.style.transform = `translate(${cameraX}px, ${cameraY}px)`;
 }
 
 document.addEventListener("keydown", (e) => {
@@ -66,7 +102,7 @@ function loop() {
       nx >= 0 &&
       nx < mapWidth &&
       ny >= 0 &&
-      ny < mapHeight &&
+      ny <= maxPlayerGridY &&
       !isBlocked(nx, ny)
     ) {
       gx = nx;
@@ -88,6 +124,7 @@ function loop() {
   user.style.zIndex = gy * mapWidth + gx;
 
   updateSprite();
+  updateCamera();
 
   requestAnimationFrame(loop);
 }
