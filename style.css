@@ -1,12 +1,3 @@
-html {
-  --tile-width: 38px;
-  --tile-height: 50px;
-  --user-width: 38px;
-  --user-height: 76px;
-  --tree-width: 74px;
-  --tree-height: 80px;
-}
-
 html,
 body {
   width: 100%;
@@ -16,50 +7,10 @@ body {
   overflow: hidden;
 }
 
-#camera {
-  position: relative;
+#game {
+  display: block;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
-}
-
-#world {
-  position: absolute;
-  inset: 0 auto auto 0;
-  will-change: transform;
-}
-
-#map {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.tile {
-  position: absolute;
-  width: var(--tile-width);
-  height: var(--tile-height);
-  background-image: url("./assets/images/grass-plate.png");
-  background-size: cover;
+  background-color: #222;
   image-rendering: pixelated;
-}
-
-.user {
-  width: var(--user-width);
-  height: var(--user-height);
-  position: absolute;
-  background-size: contain;
-  background-repeat: no-repeat;
-  image-rendering: pixelated;
-  z-index: 100;
-}
-
-.tree {
-  width: var(--tree-width);
-  height: auto;
-  position: absolute;
-  background-size: contain;
-  background-repeat: no-repeat;
-  image-rendering: pixelated;
-  z-index: 200;
 }
