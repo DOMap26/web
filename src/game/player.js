@@ -2,11 +2,10 @@ import {
   MAP_WIDTH,
   MOVE_DURATION,
   PLAYER_START,
+  RUN_FRAME_DURATION,
   maxPlayerGridY,
 } from "../config/game.js";
 import { getTileSize } from "../core/scene.js";
-
-const RUN_FRAME_DURATION = 90;
 
 export function createPlayer() {
   const tileSize = getTileSize();
@@ -22,6 +21,8 @@ export function createPlayer() {
     isMoving: false,
     direction: "front",
     spriteKey: "front",
+    runAnimationElapsed: 0,
+    lastUpdateTime: 0,
   };
 }
 
@@ -67,7 +68,7 @@ function updatePlayerSprite(player, now) {
     player.direction === "back"
   ) {
     const frameIndex =
-      Math.floor((now - player.moveStartTime) / RUN_FRAME_DURATION) % 2;
+      Math.floor(player.runAnimationElapsed / RUN_FRAME_DURATION) % 2;
     const frameNumber = frameIndex + 1;
 
     player.spriteKey = `${player.direction}Run${frameNumber}`;
@@ -109,6 +110,9 @@ function startMove(player, now, input, blockedTileSet) {
 
 export function updatePlayer(player, now, input, blockedTileSet) {
   const tileSize = getTileSize();
+  const deltaTime = player.lastUpdateTime === 0 ? 0 : now - player.lastUpdateTime;
+
+  player.lastUpdateTime = now;
 
   if (!player.isMoving) {
     startMove(player, now, input, blockedTileSet);
@@ -116,9 +120,12 @@ export function updatePlayer(player, now, input, blockedTileSet) {
 
   if (!player.isMoving) {
     syncPlayerToGrid(player, tileSize);
+    player.runAnimationElapsed = 0;
     updatePlayerSprite(player, now);
     return;
   }
+
+  player.runAnimationElapsed += deltaTime;
 
   const progress = Math.min((now - player.moveStartTime) / MOVE_DURATION, 1);
   const worldX = player.moveFromX + (player.gx - player.moveFromX) * progress;

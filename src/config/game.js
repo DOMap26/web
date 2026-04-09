@@ -15,6 +15,7 @@ export const PLAYER_START = {
 };
 
 export const MOVE_DURATION = 110;
+export const RUN_FRAME_DURATION = 180;
 
 export const tileHeightRatio = TILE_DRAW_HEIGHT / TILE_DRAW_WIDTH;
 export const playerHeightRatio = PLAYER_FRAME_HEIGHT / PLAYER_FRAME_WIDTH;
@@ -28,5 +29,8 @@ export function getResponsiveTileSize(viewportWidth, viewportHeight) {
   const heightBasedTileSize =
     viewportHeight / (CAMERA_ROWS - 1 + playerHeightRatio);
 
-  return Math.max(1, Math.floor(Math.min(widthBasedTileSize, heightBasedTileSize)));
+  return Math.max(
+    1,
+    Math.floor(Math.min(widthBasedTileSize, heightBasedTileSize)),
+  );
 }
