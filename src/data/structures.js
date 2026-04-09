@@ -4,10 +4,7 @@ export const structureTypes = {
     src: "./assets/images/tree.png",
     drawWidth: 78,
     drawHeight: 90,
-    blocks: [
-      { x: 0, y: 0 },
-      { x: 0, y: -1 },
-    ],
+    blocks: [{ x: 0, y: 0 }],
   },
   stone: {
     assetKey: "stone",
