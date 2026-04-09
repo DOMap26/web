@@ -73,11 +73,11 @@ function loop() {
       gy = ny;
     }
 
-    tx = gx * tileSize;
-    ty = gy * tileSize;
-
     lastMoveTime = now;
   }
+
+  tx = gx * tileSize;
+  ty = gy * tileSize;
 
   px += (tx - px) / speed;
   py += (ty - py) / speed;
