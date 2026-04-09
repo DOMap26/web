@@ -9,6 +9,13 @@ export const structureTypes = {
       { x: 0, y: -1 },
     ],
   },
+  stone: {
+    assetKey: "stone",
+    src: "./assets/images/stone.png",
+    drawWidth: 56,
+    drawHeight: 50,
+    blocks: [{ x: 0, y: -1 }],
+  },
 };
 
 export const structurePlacements = [
@@ -52,6 +59,7 @@ export const structurePlacements = [
   { type: "tree", x: 37, y: 8 },
   { type: "tree", x: 38, y: 8 },
   { type: "tree", x: 39, y: 8 },
+  { type: "stone", x: 1, y: 1 },
 ];
 
 export const structures = structurePlacements.map((placement, index) => {
