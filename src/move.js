@@ -11,21 +11,18 @@ import {
 const user = document.querySelector(".user");
 const world = document.querySelector("#world");
 
-let gx = 5;
-let gy = 5;
+let gx = 20;
+let gy = 10;
 
 let px = gx * tileSize;
 let py = gy * tileSize;
-
-let tx = px;
-let ty = py;
-
-const speed = 12;
+let moveFromX = gx;
+let moveFromY = gy;
+let moveStartTime = 0;
+let isMoving = false;
+const moveDuration = 120;
 
 const keys = {};
-let lastMoveTime = 0;
-const moveDelay = 120;
-
 let direction = "front";
 
 user.style.left = px + "px";
@@ -39,9 +36,33 @@ function isBlocked(nx, ny) {
   return treeBlocks.some((pos) => pos.x === nx && pos.y === ny);
 }
 
+function getNextStep() {
+  let dx = 0;
+  let dy = 0;
+
+  if (keys["w"] || keys["ㅈ"]) {
+    dy -= 1;
+    direction = "back";
+  } else if (keys["s"] || keys["ㄴ"]) {
+    dy += 1;
+    direction = "front";
+  }
+
+  if (keys["a"] || keys["ㅁ"]) {
+    dx -= 1;
+    direction = "left";
+  } else if (keys["d"] || keys["ㅇ"]) {
+    dx += 1;
+    direction = "right";
+  }
+
+  return { dx, dy };
+}
+
 function updateCamera() {
   const mapPixelWidth = mapWidth * tileSize;
-  const mapPixelHeight = (mapHeight - 1) * tileSize + tileSize * tileHeightRatio;
+  const mapPixelHeight =
+    (mapHeight - 1) * tileSize + tileSize * tileHeightRatio;
   const playerPixelWidth = tileSize;
   const playerPixelHeight = tileSize * playerHeightRatio;
 
@@ -56,11 +77,11 @@ function updateCamera() {
 
   const cameraX = Math.min(
     0,
-    Math.max(minCameraX, viewportWidth / 2 - playerCenterX)
+    Math.max(minCameraX, viewportWidth / 2 - playerCenterX),
   );
   const cameraY = Math.min(
     0,
-    Math.max(minCameraY, viewportHeight / 2 - playerCenterY)
+    Math.max(minCameraY, viewportHeight / 2 - playerCenterY),
   );
 
   world.style.transform = `translate(${cameraX}px, ${cameraY}px)`;
@@ -74,49 +95,65 @@ document.addEventListener("keyup", (e) => {
   keys[e.key.toLowerCase()] = false;
 });
 
-function loop() {
-  const now = Date.now();
+window.addEventListener("blur", () => {
+  Object.keys(keys).forEach((key) => {
+    keys[key] = false;
+  });
+});
 
-  if (now - lastMoveTime > moveDelay) {
-    let nx = gx;
-    let ny = gy;
+function startMove(now) {
+  const { dx, dy } = getNextStep();
 
-    if (keys["w"] || keys["ㅈ"]) {
-      ny -= 1;
-      direction = "back";
-    }
-    if (keys["s"] || keys["ㄴ"]) {
-      ny += 1;
-      direction = "front";
-    }
-    if (keys["a"] || keys["ㅁ"]) {
-      nx -= 1;
-      direction = "left";
-    }
-    if (keys["d"] || keys["ㅇ"]) {
-      nx += 1;
-      direction = "right";
-    }
-
-    if (
-      nx >= 0 &&
-      nx < mapWidth &&
-      ny >= 0 &&
-      ny <= maxPlayerGridY &&
-      !isBlocked(nx, ny)
-    ) {
-      gx = nx;
-      gy = ny;
-    }
-
-    lastMoveTime = now;
+  if (dx === 0 && dy === 0) {
+    return;
   }
 
-  tx = gx * tileSize;
-  ty = gy * tileSize;
+  const nx = gx + dx;
+  const ny = gy + dy;
 
-  px += (tx - px) / speed;
-  py += (ty - py) / speed;
+  if (
+    nx < 0 ||
+    nx >= mapWidth ||
+    ny < 0 ||
+    ny > maxPlayerGridY ||
+    isBlocked(nx, ny)
+  ) {
+    return;
+  }
+
+  moveFromX = gx;
+  moveFromY = gy;
+  gx = nx;
+  gy = ny;
+  moveStartTime = now;
+  isMoving = true;
+}
+
+function updatePosition(now) {
+  if (!isMoving) {
+    px = gx * tileSize;
+    py = gy * tileSize;
+    return;
+  }
+
+  const progress = Math.min((now - moveStartTime) / moveDuration, 1);
+  const currentX = moveFromX + (gx - moveFromX) * progress;
+  const currentY = moveFromY + (gy - moveFromY) * progress;
+
+  px = currentX * tileSize;
+  py = currentY * tileSize;
+
+  if (progress >= 1) {
+    isMoving = false;
+  }
+}
+
+function loop(now) {
+  if (!isMoving) {
+    startMove(now);
+  }
+
+  updatePosition(now);
 
   user.style.left = px + "px";
   user.style.top = py + "px";
@@ -129,4 +166,4 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-loop();
+requestAnimationFrame(loop);
