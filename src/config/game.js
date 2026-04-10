@@ -10,8 +10,8 @@ export const MAP_WIDTH = 80;
 export const MAP_HEIGHT = 40;
 
 export const PLAYER_START = {
-  x: 20,
-  y: 10,
+  x: 30,
+  y: 32,
 };
 
 export const MOVE_DURATION = 110;
